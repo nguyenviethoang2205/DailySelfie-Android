@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
+import android.widget.ImageView;
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
@@ -43,6 +43,12 @@ public class MainActivity extends AppCompatActivity {
         );
 
         setContentView(R.layout.activity_main);
+        //Thêm xử lý nút Settings
+        ImageView btnSettings = findViewById(R.id.btnSetting);
+        btnSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MenuSettingsActivity.class);
+            startActivity(intent);
+        });
 
         // Tìm RecyclerView
         recyclerView = findViewById(R.id.recyclerView);
