@@ -12,28 +12,29 @@ import java.util.concurrent.TimeUnit;
 public class Scheduler {
 
     public static void scheduleDailyReminder(Context context) {
+
         int hour = PreferenceHelper.getReminderHour(context);
         int minute = PreferenceHelper.getReminderMinute(context);
 
         Calendar now = Calendar.getInstance();
-        Calendar reminderTime = Calendar.getInstance();
-        reminderTime.set(Calendar.HOUR_OF_DAY, hour);
-        reminderTime.set(Calendar.MINUTE, minute);
-        reminderTime.set(Calendar.SECOND, 0);
+        Calendar reminder = Calendar.getInstance();
+        reminder.set(Calendar.HOUR_OF_DAY, hour);
+        reminder.set(Calendar.MINUTE, minute);
+        reminder.set(Calendar.SECOND, 0);
 
-        long delay = reminderTime.getTimeInMillis() - now.getTimeInMillis();
-        if (delay < 0) {
-            delay += TimeUnit.DAYS.toMillis(1); // Lên lịch cho ngày mai nếu giờ đã qua
-        }
+        long delay = reminder.getTimeInMillis() - now.getTimeInMillis();
+        if (delay < 0) delay += TimeUnit.DAYS.toMillis(1);
 
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(ReminderWorker.class)
-                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-                .build();
+        OneTimeWorkRequest req =
+                new OneTimeWorkRequest.Builder(ReminderWorker.class)
+                        .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                        .addTag("daily_selfie_reminder")
+                        .build();
 
         WorkManager.getInstance(context).enqueueUniqueWork(
                 "daily_selfie_reminder",
                 ExistingWorkPolicy.REPLACE,
-                workRequest
+                req
         );
     }
 }

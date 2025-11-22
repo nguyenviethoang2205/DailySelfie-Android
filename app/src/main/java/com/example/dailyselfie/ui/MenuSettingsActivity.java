@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dailyselfie.R;
+import com.example.dailyselfie.reminder.ReminderSettingsActivity;
 
 public class MenuSettingsActivity extends AppCompatActivity {
 
@@ -31,5 +32,6 @@ public class MenuSettingsActivity extends AppCompatActivity {
         findViewById(R.id.rowSecurity).setOnClickListener(v ->
                 Toast.makeText(this, "Cài đặt bảo mật", Toast.LENGTH_SHORT).show()
         );
+
     }
 }

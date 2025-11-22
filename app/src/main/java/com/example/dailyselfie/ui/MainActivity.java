@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.example.dailyselfie.R;
 import com.example.dailyselfie.model.PhotoItem;
+import com.example.dailyselfie.reminder.Scheduler;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         setContentView(R.layout.activity_main);
+        Scheduler.scheduleDailyReminder(this);
         //Thêm xử lý nút Settings
         ImageView btnSettings = findViewById(R.id.btnSetting);
         btnSettings.setOnClickListener(v -> {
@@ -113,5 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
         return items;
     }
+
 
 }

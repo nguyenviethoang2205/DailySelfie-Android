@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:background="@android:color/white">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/titleReminder"
+        android:text="Chọn thời gian nhắc nhở hàng ngày"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- TimePicker -->
+    <TimePicker
+        android:id="@+id/timePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:timePickerMode="spinner"
+        android:layout_marginBottom="32dp"/>
+
+    <!-- Nút Lưu -->
+    <Button
+        android:id="@+id/btnSaveReminder"
+        android:text="Lưu"
+        android:textSize="16sp"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Nút Hủy -->
+    <Button
+        android:id="@+id/btnCancelReminder"
+        android:text="Hủy"
+        android:textSize="16sp"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/darker_gray"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="12dp"/>
+
+</LinearLayout>
