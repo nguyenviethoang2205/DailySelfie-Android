@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
+// [MỚI] Thêm thư viện này để xử lý Cache
+import com.bumptech.glide.signature.ObjectKey;
 import com.example.dailyselfie.R;
 import com.example.dailyselfie.model.PhotoItem;
 
@@ -55,9 +57,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         PhotoItem item = items.get(position);
 
-        // Xử lý header ngày
         if (item.type == PhotoItem.TYPE_DATE) {
-
             StaggeredGridLayoutManager.LayoutParams params =
                     (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
             params.setFullSpan(true);
@@ -67,9 +67,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             return;
         }
 
-        // Xử lý ảnh
         Glide.with(holder.itemView.getContext())
                 .load(item.file)
+                .signature(new ObjectKey(item.file.lastModified()))
                 .into(((PhotoViewHolder) holder).imageView);
 
         holder.itemView.setOnClickListener(v ->
@@ -77,13 +77,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         );
     }
 
-
     @Override
     public int getItemCount() {
         return items.size();
     }
 
-    // ViewHolder cho ảnh
     static class PhotoViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         public PhotoViewHolder(@NonNull View itemView) {
@@ -92,7 +90,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    // ViewHolder cho header ngày
     static class DateViewHolder extends RecyclerView.ViewHolder {
         TextView txtDate;
         public DateViewHolder(@NonNull View itemView) {
@@ -101,4 +98,3 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 }
-

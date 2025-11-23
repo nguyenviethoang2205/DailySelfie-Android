@@ -47,6 +47,13 @@
             android:exported="true"
             android:label="Camera" />
 
+        <activity android:name=".ui.EditImageActivity" />
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
         <receiver
             android:name=".reminder.ReminderReceiver"
             android:enabled="true"

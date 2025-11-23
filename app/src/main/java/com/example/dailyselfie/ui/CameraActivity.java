@@ -2,12 +2,14 @@ package com.example.dailyselfie.ui;
 
 import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
@@ -35,14 +37,37 @@ public class CameraActivity extends AppCompatActivity {
 
     private PreviewView previewView;
     private ImageCapture imageCapture;
+    private ActivityResultLauncher<Intent> editLauncher;
+
+    private String currentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
         setContentView(R.layout.activity_camera);
 
         previewView = findViewById(R.id.previewView);
         ImageButton btnCapture = findViewById(R.id.btnCapture);
+        ImageButton btnBack = findViewById(R.id.btnBack);
+
+        btnBack.setOnClickListener(v -> finish());
+
+        editLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        setResult(RESULT_OK, data);
+                        finish();
+                    } else {
+                        deleteCurrentPhoto();
+                        Toast.makeText(this, "Đã hủy ảnh", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
 
         Dexter.withContext(this)
                 .withPermission(Manifest.permission.CAMERA)
@@ -54,7 +79,7 @@ public class CameraActivity extends AppCompatActivity {
 
                     @Override
                     public void onPermissionDenied(PermissionDeniedResponse response) {
-                        Toast.makeText(CameraActivity.this, "Cần quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CameraActivity.this, "Cần quyền Camera", Toast.LENGTH_SHORT).show();
                         finish();
                     }
 
@@ -65,6 +90,16 @@ public class CameraActivity extends AppCompatActivity {
                 }).check();
 
         btnCapture.setOnClickListener(v -> takePhoto());
+    }
+
+    private void deleteCurrentPhoto() {
+        if (currentPhotoPath != null) {
+            File file = new File(currentPhotoPath);
+            if (file.exists()) {
+                file.delete();
+            }
+            currentPhotoPath = null;
+        }
     }
 
     private void startCamera() {
@@ -78,11 +113,8 @@ public class CameraActivity extends AppCompatActivity {
 
         Preview preview = new Preview.Builder().build();
         imageCapture = new ImageCapture.Builder().build();
-
         CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
-
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
-
         cameraProvider.unbindAll();
         cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
     }
@@ -102,18 +134,17 @@ public class CameraActivity extends AppCompatActivity {
         imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(this), new ImageCapture.OnImageSavedCallback() {
             @Override
             public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                Toast.makeText(CameraActivity.this, "Đã lưu ảnh: " + photoFile.getName(), Toast.LENGTH_SHORT).show();
 
-                // Trả file về MainActivity
-                Intent intent = new Intent();
-                intent.putExtra("photoPath", photoFile.getAbsolutePath());
-                setResult(RESULT_OK, intent);
-                finish();
+                currentPhotoPath = photoFile.getAbsolutePath();
+
+                Intent intent = new Intent(CameraActivity.this, EditImageActivity.class);
+                intent.putExtra("path", currentPhotoPath);
+                editLauncher.launch(intent);
             }
 
             @Override
             public void onError(@NonNull ImageCaptureException exception) {
-                Toast.makeText(CameraActivity.this, "Chụp ảnh thất bại", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CameraActivity.this, "Lỗi: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

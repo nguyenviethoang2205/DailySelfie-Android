@@ -74,7 +74,7 @@ dependencies {
     implementation("androidx.camera:camera-extensions:1.3.0-alpha04")
     implementation("com.karumi:dexter:6.2.3")
 
-
-
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
+    implementation("com.github.yalantis:ucrop:2.2.8")
 
 }

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <ImageView
+        android:id="@+id/imgPreview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:layout_above="@id/layoutTools"
+        />
+
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/bg_circle_button"
+        android:src="@drawable/ic_arrow_back"
+        android:padding="12dp"
+        android:scaleType="fitCenter"
+        app:tint="#FFFFFF"
+        android:contentDescription="Quay lại" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvFilters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="#CC000000"
+        android:layout_above="@id/layoutTools"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/layoutTools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center"
+        android:background="#1E1E1E"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/btnCropRotate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cắt / Xoay"
+            android:textSize="12sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="8dp"
+            app:backgroundTint="#333333" />
+
+        <Button
+            android:id="@+id/btnFilter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Bộ Lọc"
+            android:textSize="12sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="8dp"
+            app:backgroundTint="#333333" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Lưu Xong"
+            android:textSize="12sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:backgroundTint="#00AA00" />
+    </LinearLayout>
+
+</RelativeLayout>
