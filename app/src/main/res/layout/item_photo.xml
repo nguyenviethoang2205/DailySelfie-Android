@@ -1,7 +1,51 @@
-<ImageView android:id="@+id/imageView"
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
-    android:scaleType="centerCrop"
-    android:layout_margin="2dp"
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    android:layout_height="wrap_content">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop" />
+
+    <!-- Dấu tick khi chọn -->
+    <ImageView
+        android:id="@+id/imgSelected"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="12dp"
+        android:background="@drawable/circle_blue"
+        android:padding="6dp"
+        android:src="@android:drawable/ic_menu_gallery"
+        android:tint="#FFFFFF"
+        android:visibility="gone" />
+
+    <!-- Ghi chú + emoji -->
+    <TextView
+        android:id="@+id/tvNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:background="#99000000"
+        android:padding="8dp"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:maxWidth="140dp"
+        android:visibility="gone" />
+
+    <!-- Nút thêm ghi chú -->
+    <ImageButton
+        android:id="@+id/btnAddNote"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="top|start"
+        android:layout_margin="12dp"
+        android:background="@drawable/bg_circle_button"
+        android:src="@android:drawable/ic_menu_edit"
+        android:tint="#FFFFFF"
+        android:scaleType="centerInside"
+        android:contentDescription="Thêm ghi chú" />
+
+</FrameLayout>

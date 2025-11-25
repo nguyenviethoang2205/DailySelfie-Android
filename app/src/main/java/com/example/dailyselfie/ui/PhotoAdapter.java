@@ -1,37 +1,59 @@
 package com.example.dailyselfie.ui;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
+import android.view.*;
+import android.widget.*;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
+import androidx.recyclerview.widget.*;
 import com.bumptech.glide.Glide;
-// [MỚI] Thêm thư viện này để xử lý Cache
 import com.bumptech.glide.signature.ObjectKey;
 import com.example.dailyselfie.R;
 import com.example.dailyselfie.model.PhotoItem;
 
 import java.io.File;
-import java.util.List;
+import java.util.*;
 
 public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<PhotoItem> items;
-    private OnPhotoClickListener listener;
+    private OnItemClick listener;
 
-    public interface OnPhotoClickListener {
-        void onPhotoClick(File file);
+    public Set<String> selectedPhotos = new HashSet<>();
+    public boolean isSelectMode = false;
+
+    public interface OnItemClick {
+        void onClick(File file);
+        void onLongClick(File file);
+        void onAddNote(File file);
     }
 
-    public PhotoAdapter(List<PhotoItem> items, OnPhotoClickListener listener) {
+    public PhotoAdapter(List<PhotoItem> items, OnItemClick listener) {
         this.items = items;
         this.listener = listener;
+    }
+
+    public void startSelectMode(String path) {
+        isSelectMode = true;
+        selectedPhotos.add(path);
+        notifyDataSetChanged();
+    }
+
+    public void toggleSelect(String path) {
+        if (selectedPhotos.contains(path)) {
+            selectedPhotos.remove(path);
+        } else {
+            selectedPhotos.add(path);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void exitSelectMode() {
+        isSelectMode = false;
+        selectedPhotos.clear();
+        notifyDataSetChanged();
+    }
+
+    public int getSelectedCount() {
+        return selectedPhotos.size();
     }
 
     @Override
@@ -43,38 +65,50 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == PhotoItem.TYPE_DATE) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_date_header, parent, false);
-            return new DateViewHolder(view);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_date_header, parent, false);
+            return new DateViewHolder(v);
         } else {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_photo, parent, false);
-            return new PhotoViewHolder(view);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_photo, parent, false);
+            return new PhotoHolder(v);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         PhotoItem item = items.get(position);
-
         if (item.type == PhotoItem.TYPE_DATE) {
-            StaggeredGridLayoutManager.LayoutParams params =
-                    (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
-            params.setFullSpan(true);
-            holder.itemView.setLayoutParams(params);
-
             ((DateViewHolder) holder).txtDate.setText(item.date);
             return;
         }
 
-        Glide.with(holder.itemView.getContext())
+        PhotoHolder h = (PhotoHolder) holder;
+        String path = item.file.getAbsolutePath();
+        boolean isSelected = selectedPhotos.contains(path);
+
+        Glide.with(h.itemView.getContext())
                 .load(item.file)
                 .signature(new ObjectKey(item.file.lastModified()))
-                .into(((PhotoViewHolder) holder).imageView);
+                .into(h.img);
 
-        holder.itemView.setOnClickListener(v ->
-                listener.onPhotoClick(item.file)
-        );
+        // Hiển thị dấu tick khi chọn
+        h.imgSelected.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+
+        // Hiển thị ghi chú
+        String note = MainActivity.photoNotes.get(path);
+        if (note != null && !note.isEmpty()) {
+            h.tvNote.setText(note);
+            h.tvNote.setVisibility(View.VISIBLE);
+        } else {
+            h.tvNote.setVisibility(View.GONE);
+        }
+
+        h.itemView.setOnClickListener(v -> listener.onClick(item.file));
+        h.itemView.setOnLongClickListener(v -> {
+            listener.onLongClick(item.file);
+            return true;
+        });
+
+        h.btnAddNote.setOnClickListener(v -> listener.onAddNote(item.file));
     }
 
     @Override
@@ -82,19 +116,25 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return items.size();
     }
 
-    static class PhotoViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
-        public PhotoViewHolder(@NonNull View itemView) {
-            super(itemView);
-            imageView = itemView.findViewById(R.id.imageView);
+    class PhotoHolder extends RecyclerView.ViewHolder {
+        ImageView img, imgSelected;
+        TextView tvNote;
+        ImageButton btnAddNote;
+
+        PhotoHolder(View v) {
+            super(v);
+            img = v.findViewById(R.id.imageView);
+            imgSelected = v.findViewById(R.id.imgSelected);
+            tvNote = v.findViewById(R.id.tvNote);
+            btnAddNote = v.findViewById(R.id.btnAddNote);
         }
     }
 
-    static class DateViewHolder extends RecyclerView.ViewHolder {
+    class DateViewHolder extends RecyclerView.ViewHolder {
         TextView txtDate;
-        public DateViewHolder(@NonNull View itemView) {
-            super(itemView);
-            txtDate = itemView.findViewById(R.id.txtDate);
+        DateViewHolder(View v) {
+            super(v);
+            txtDate = v.findViewById(R.id.txtDate);
         }
     }
 }
