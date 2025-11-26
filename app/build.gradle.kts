@@ -81,4 +81,5 @@ dependencies {
 
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
     implementation("com.github.yalantis:ucrop:2.2.8-native")
+    implementation("com.google.code.gson:gson:2.10.1")
 }

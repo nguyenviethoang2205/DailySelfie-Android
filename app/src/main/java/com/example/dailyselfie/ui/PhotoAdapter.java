@@ -1,16 +1,25 @@
 package com.example.dailyselfie.ui;
 
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.*;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager; // Cần import cái này để chỉnh layout
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.ObjectKey;
 import com.example.dailyselfie.R;
 import com.example.dailyselfie.model.PhotoItem;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -76,11 +85,19 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         PhotoItem item = items.get(position);
-        if (item.type == PhotoItem.TYPE_DATE) {
+        int viewType = getItemViewType(position);
+
+        if (viewType == PhotoItem.TYPE_DATE) {
+            ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+            if (lp instanceof StaggeredGridLayoutManager.LayoutParams) {
+                StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) lp;
+                p.setFullSpan(true);
+            }
             ((DateViewHolder) holder).txtDate.setText(item.date);
             return;
         }
 
+        // Xử lý hiển thị Ảnh
         PhotoHolder h = (PhotoHolder) holder;
         String path = item.file.getAbsolutePath();
         boolean isSelected = selectedPhotos.contains(path);
@@ -88,10 +105,17 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         Glide.with(h.itemView.getContext())
                 .load(item.file)
                 .signature(new ObjectKey(item.file.lastModified()))
+                .centerCrop() // Thêm centerCrop để ảnh vuông đẹp
                 .into(h.img);
 
-        // Hiển thị dấu tick khi chọn
-        h.imgSelected.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+        // Hiển thị trạng thái đang chọn (Selected)
+        if (isSelectMode) {
+            h.imgSelected.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+            h.img.setAlpha(isSelected ? 0.5f : 1.0f); // Làm mờ ảnh nếu được chọn
+        } else {
+            h.imgSelected.setVisibility(View.GONE);
+            h.img.setAlpha(1.0f);
+        }
 
         // Hiển thị ghi chú
         String note = MainActivity.photoNotes.get(path);
@@ -102,12 +126,14 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             h.tvNote.setVisibility(View.GONE);
         }
 
+        // Sự kiện Click
         h.itemView.setOnClickListener(v -> listener.onClick(item.file));
         h.itemView.setOnLongClickListener(v -> {
             listener.onLongClick(item.file);
             return true;
         });
 
+        // Nút thêm ghi chú
         h.btnAddNote.setOnClickListener(v -> listener.onAddNote(item.file));
     }
 
@@ -117,7 +143,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     class PhotoHolder extends RecyclerView.ViewHolder {
-        ImageView img, imgSelected;
+        ImageView img;
+        ImageView imgSelected;
         TextView tvNote;
         ImageButton btnAddNote;
 
@@ -132,6 +159,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     class DateViewHolder extends RecyclerView.ViewHolder {
         TextView txtDate;
+
         DateViewHolder(View v) {
             super(v);
             txtDate = v.findViewById(R.id.txtDate);
