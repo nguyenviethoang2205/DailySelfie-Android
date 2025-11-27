@@ -78,9 +78,16 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Nút chọn nhiều
+        // Nút "Chọn tất cả"
         btnSelectAll.setOnClickListener(v -> {
-            photoAdapter.startSelectMode(null); // bật chế độ chọn
+            photoAdapter.selectedPhotos.clear();
+            for (PhotoItem item : photoItems) {
+                if (item.type == PhotoItem.TYPE_PHOTO) {  // chỉ chọn ảnh, bỏ qua header ngày
+                    photoAdapter.selectedPhotos.add(item.file.getAbsolutePath());
+                }
+            }
+            photoAdapter.isSelectMode = true;
+            photoAdapter.notifyDataSetChanged();
             updateTitle();
         });
 
@@ -101,8 +108,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(File file) {
                 if (photoAdapter.isSelectMode) {
                     photoAdapter.toggleSelect(file.getAbsolutePath());
+                    updateTitle();
                 } else {
-                    // Xem ảnh lớn
                     Intent intent = new Intent(MainActivity.this, ViewPhotoActivity.class);
                     intent.putExtra("path", file.getAbsolutePath());
                     startActivity(intent);
@@ -149,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
         updateTitle();
     }
 
-    // Cập nhật tiêu đề: hiện số ảnh đang chọn
     private void updateTitle() {
         int count = photoAdapter.getSelectedCount();
         TextView txtHeader = findViewById(R.id.txtHeader);
