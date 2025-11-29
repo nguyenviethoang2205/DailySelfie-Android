@@ -16,6 +16,8 @@ public class MenuSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_settings);
 
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
         findViewById(R.id.rowReminder).setOnClickListener(v -> {
             Intent i = new Intent(this, ReminderSettingsActivity.class);
             startActivity(i);

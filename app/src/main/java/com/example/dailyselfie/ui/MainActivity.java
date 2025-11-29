@@ -62,12 +62,11 @@ public class MainActivity extends AppCompatActivity {
         );
 
         setContentView(R.layout.activity_main);
-// Lấy giờ nhắc đã lưu từ ReminderSettingsActivity (SharedPreferences)
+
         SharedPreferences pref = getSharedPreferences("reminder_prefs", MODE_PRIVATE);
         int hour = pref.getInt("hour", 8);   // default 08:00
         int minute = pref.getInt("minute", 0);
 
-// Đặt lịch nhắc
         ReminderScheduler.scheduleDailyReminder(this, hour, minute);
         layoutOnThisDay = findViewById(R.id.layoutOnThisDay);
         imgOnThisDay = findViewById(R.id.imgOnThisDay);
@@ -155,6 +154,12 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, CameraActivity.class);
             cameraLauncher.launch(intent);
         });
+
+        boolean openCameraNow = getIntent().getBooleanExtra("OPEN_CAMERA_IMMEDIATELY", false);
+        if (openCameraNow) {
+            Intent intent = new Intent(MainActivity.this, com.example.dailyselfie.ui.CameraActivity.class);
+            cameraLauncher.launch(intent);
+        }
     }
 
     @Override

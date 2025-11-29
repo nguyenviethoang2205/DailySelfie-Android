@@ -13,7 +13,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.example.dailyselfie.R;
-import com.example.dailyselfie.ui.CameraActivity;
+import com.example.dailyselfie.ui.MainActivity; // <--- SỬA: Import MainActivity
 
 public class ReminderWorker extends Worker {
 
@@ -24,14 +24,15 @@ public class ReminderWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        // Kiểm tra xem hôm nay đã chụp selfie chưa
         if (SelfieTracker.isTodayTaken(getApplicationContext())) {
-            return Result.success(); // nếu đã chụp → không gửi notification
+            return Result.success();
         }
 
-        // Tạo Intent để mở CameraActivity khi nhấn notification
-        Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+
+        intent.putExtra("OPEN_CAMERA_IMMEDIATELY", true);
+
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 getApplicationContext(),
@@ -40,7 +41,6 @@ public class ReminderWorker extends Worker {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        // Tạo Notification
         String channelId = "reminder_channel";
         NotificationManager manager = (NotificationManager) getApplicationContext()
                 .getSystemService(Context.NOTIFICATION_SERVICE);
@@ -51,12 +51,12 @@ public class ReminderWorker extends Worker {
         }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId)
-                .setSmallIcon(R.drawable.ic_notification) // cần icon trong res/drawable
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Nhắc nhở selfie")
                 .setContentText("Bạn chưa chụp ảnh selfie hôm nay!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
-                .setContentIntent(pendingIntent); // <-- quan trọng: mở CameraActivity khi nhấn
+                .setContentIntent(pendingIntent);
 
         manager.notify(1001, builder.build());
 

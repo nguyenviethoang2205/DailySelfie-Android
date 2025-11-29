@@ -1,27 +1,40 @@
 package com.example.dailyselfie.reminder;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.os.Environment;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 public class SelfieTracker {
 
-    private static final String PREFS_NAME = "selfie_tracker";
+    public static boolean isTodayTaken(Context context) {
+        File directory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-    // Đánh dấu hôm nay đã chụp
-    public static void markToday(Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String today = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
-        pref.edit().putBoolean(today, true).apply();
+        if (directory == null || !directory.exists()) {
+            return false;
+        }
+
+        File[] files = directory.listFiles();
+        if (files == null || files.length == 0) {
+            return false;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
+        String today = sdf.format(new Date());
+
+        for (File file : files) {
+            String fileDate = sdf.format(new Date(file.lastModified()));
+            if (fileDate.equals(today)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    // Kiểm tra hôm nay đã chụp chưa
-    public static boolean isTodayTaken(Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String today = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
-        return pref.getBoolean(today, false);
+    public static void markToday(Context context) {
     }
 }
