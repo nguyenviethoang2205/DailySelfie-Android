@@ -54,20 +54,26 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
-<!--        <receiver-->
-<!--            android:name=".reminder.ReminderReceiver"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
-<!--        <receiver android:name=".reminder.BootReceiver"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
+        <activity
+            android:name=".ui.PinActivity"
+            android:label="Bảo mật"
+            android:exported="false" />
+        <activity
+            android:name=".ui.BackupActivity"
+            android:label="Sao lưu và Đồng bộ"
+            android:exported="false" />
+        <activity android:name=".ui.TimeLapseActivity"
+            android:label="Tạo Time-lapse" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
         <activity android:name=".reminder.ReminderSettingsActivity" />
         <activity android:name=".ui.MenuSettingsActivity"/>
     </application>

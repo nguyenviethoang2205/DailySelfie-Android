@@ -57,6 +57,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        boolean isUnlocked = getIntent().getBooleanExtra("IS_UNLOCKED", false);
+
+        if (com.example.dailyselfie.utils.SecurityPrefs.isSecurityEnabled(this) && !isUnlocked) {
+            Intent intent = new Intent(this, PinActivity.class);
+            intent.putExtra("SETUP_MODE", false);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         );
@@ -107,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
                 new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         );
         photoItems = new ArrayList<>();
+
+        loadNotesFromStorage();
 
         // Tạo adapter với đầy đủ chức năng
         photoAdapter = new PhotoAdapter(photoItems, new PhotoAdapter.OnItemClick() {
@@ -194,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Dialog thêm ghi chú + emoji
     private void showNoteDialog(File file) {
         String path = file.getAbsolutePath();
         String currentNote = photoNotes.getOrDefault(path, "");
@@ -202,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Ghi chú cho ảnh");
 
-        View view = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
         EditText input = new EditText(this);
         input.setHint("Ví dụ: Happy today");
         input.setText(currentNote);
@@ -210,24 +220,29 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Lưu", (dialog, which) -> {
             String note = input.getText().toString().trim();
+
             if (note.isEmpty()) {
                 photoNotes.remove(path);
             } else {
                 photoNotes.put(path, note);
             }
+
+            saveNoteToStorage(path, note);
+
             photoAdapter.notifyDataSetChanged();
         });
 
         builder.setNegativeButton("Hủy", null);
+
         builder.setNeutralButton("Xóa ghi chú", (dialog, which) -> {
             photoNotes.remove(path);
+            saveNoteToStorage(path, null);
             photoAdapter.notifyDataSetChanged();
         });
 
         builder.show();
     }
 
-    // Nút XÓA NHIỀU ẢNH (bạn thêm nút này vào toolbar hoặc menu đều được)
     public void deleteSelectedPhotos(View view) {
         int count = photoAdapter.getSelectedCount();
         if (count == 0) {
@@ -242,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
                     for (String path : photoAdapter.selectedPhotos) {
                         new File(path).delete();
                         photoNotes.remove(path);
+                        saveNoteToStorage(path, null);
                     }
                     photoAdapter.exitSelectMode();
                     reloadPhotoList();
@@ -319,5 +335,31 @@ public class MainActivity extends AppCompatActivity {
             items.add(PhotoItem.createPhoto(file));
         }
         return items;
+    }
+
+    //  Hàm tải toàn bộ ghi chú từ bộ nhớ khi mở App
+    private void loadNotesFromStorage() {
+        SharedPreferences prefs = getSharedPreferences("my_photo_notes", MODE_PRIVATE);
+        java.util.Map<String, ?> allNotes = prefs.getAll();
+
+        photoNotes.clear();
+        for (java.util.Map.Entry<String, ?> entry : allNotes.entrySet()) {
+            if (entry.getValue() instanceof String) {
+                photoNotes.put(entry.getKey(), (String) entry.getValue());
+            }
+        }
+    }
+
+    //  Hàm lưu 1 ghi chú xuống bộ nhớ
+    private void saveNoteToStorage(String path, String note) {
+        SharedPreferences prefs = getSharedPreferences("my_photo_notes", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        if (note == null || note.isEmpty()) {
+            editor.remove(path);
+        } else {
+            editor.putString(path, note);
+        }
+        editor.apply();
     }
 }
