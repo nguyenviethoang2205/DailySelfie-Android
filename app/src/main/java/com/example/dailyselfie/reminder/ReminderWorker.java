@@ -2,9 +2,7 @@ package com.example.dailyselfie.reminder;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -13,11 +11,8 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.example.dailyselfie.R;
-import com.example.dailyselfie.ui.MainActivity;
 
 public class ReminderWorker extends Worker {
-
-    private static final String CHANNEL_ID = "selfie_reminder";
 
     public ReminderWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
@@ -26,46 +21,30 @@ public class ReminderWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-
-        if (!PreferenceHelper.hasTakenPhotoToday(getApplicationContext())) {
-            sendNotification();
+        // Kiểm tra xem hôm nay đã chụp selfie chưa
+        if (SelfieTracker.isTodayTaken(getApplicationContext())) {
+            return Result.success(); // nếu đã chụp → không gửi notification
         }
 
-        // Lịch ngày tiếp theo
-        Scheduler.scheduleDailyReminder(getApplicationContext());
-
-        return Result.success();
-    }
-
-    private void sendNotification() {
-        Context ctx = getApplicationContext();
-
-        Intent intent = new Intent(ctx, MainActivity.class);
-        intent.putExtra("openCamera", true);
-
-        PendingIntent pi = PendingIntent.getActivity(
-                ctx, 0, intent, PendingIntent.FLAG_IMMUTABLE
-        );
-
-        NotificationManager nm =
-                (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        // Tạo notification
+        String channelId = "reminder_channel";
+        NotificationManager manager = (NotificationManager) getApplicationContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel ch = new NotificationChannel(
-                    CHANNEL_ID, "Selfie Reminder",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            nm.createNotificationChannel(ch);
+            NotificationChannel channel = new NotificationChannel(channelId, "Nhắc nhở", NotificationManager.IMPORTANCE_HIGH);
+            manager.createNotificationChannel(channel);
         }
 
-        NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_camera)
-                .setContentTitle("Nhắc Selfie")
-                .setContentText("Hôm nay bạn chưa chụp ảnh!")
-                .setAutoCancel(true)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId)
+                .setSmallIcon(R.drawable.ic_notification) // bạn cần có icon này
+                .setContentTitle("Nhắc nhở selfie")
+                .setContentText("Bạn chưa chụp ảnh selfie hôm nay!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pi);
+                .setAutoCancel(true);
 
-        nm.notify(999, b.build());
+        manager.notify(1001, builder.build());
+
+        return Result.success();
     }
 }

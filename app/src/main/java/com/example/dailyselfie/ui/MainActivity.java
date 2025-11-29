@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -21,7 +22,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.dailyselfie.R;
 import com.example.dailyselfie.model.PhotoItem;
-import com.example.dailyselfie.reminder.Scheduler;
+import com.example.dailyselfie.reminder.ReminderScheduler;
+import com.example.dailyselfie.reminder.SelfieTracker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -60,8 +62,13 @@ public class MainActivity extends AppCompatActivity {
         );
 
         setContentView(R.layout.activity_main);
-        Scheduler.scheduleDailyReminder(this);
+// Lấy giờ nhắc đã lưu từ ReminderSettingsActivity (SharedPreferences)
+        SharedPreferences pref = getSharedPreferences("reminder_prefs", MODE_PRIVATE);
+        int hour = pref.getInt("hour", 8);   // default 08:00
+        int minute = pref.getInt("minute", 0);
 
+// Đặt lịch nhắc
+        ReminderScheduler.scheduleDailyReminder(this, hour, minute);
         layoutOnThisDay = findViewById(R.id.layoutOnThisDay);
         imgOnThisDay = findViewById(R.id.imgOnThisDay);
         txtOnThisDayYear = findViewById(R.id.txtOnThisDayYear);
@@ -137,7 +144,9 @@ public class MainActivity extends AppCompatActivity {
                         reloadPhotoList();
                         checkForOnThisDay();
                         recyclerView.scrollToPosition(0);
-                        Toast.makeText(this, "Đã lưu ảnh mới!", Toast.LENGTH_SHORT).show();
+
+                        // Đánh dấu hôm nay đã chụp
+                        SelfieTracker.markToday(this);
                     }
                 }
         );
