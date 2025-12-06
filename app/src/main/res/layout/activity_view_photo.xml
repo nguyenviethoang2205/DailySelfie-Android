@@ -5,11 +5,10 @@
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <com.github.chrisbanes.photoview.PhotoView
-        android:id="@+id/fullImage"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerImage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter" />
+        android:layout_height="match_parent" />
 
     <ImageButton
         android:id="@+id/btnBack"
@@ -21,7 +20,23 @@
         android:src="@drawable/ic_arrow_back"
         android:contentDescription="Quay lại"
         android:scaleType="centerInside"
-        android:padding="8dp" />
+        android:padding="8dp"
+        app:tint="#FFFFFF"/>
+
+    <TextView
+        android:id="@+id/txtDateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="28dp"
+        android:text="20/10/2025 08:30"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2" />
 
     <ImageButton
         android:id="@+id/btnDelete"
@@ -34,4 +49,6 @@
         android:contentDescription="Xóa ảnh"
         android:scaleType="centerInside"
         android:padding="8dp"
-        app:tint="#FFFFFF" /> </FrameLayout>
+        app:tint="#FFFFFF" />
+
+</FrameLayout>

@@ -115,15 +115,34 @@ public class MainActivity extends AppCompatActivity {
 
         loadNotesFromStorage();
 
+
         photoAdapter = new PhotoAdapter(photoItems, new PhotoAdapter.OnItemClick() {
             @Override
-            public void onClick(File file) {
+            public void onClick(File fileClicked) {
                 if (photoAdapter.isSelectMode) {
-                    photoAdapter.toggleSelect(file.getAbsolutePath());
+                    photoAdapter.toggleSelect(fileClicked.getAbsolutePath());
                     updateTitle();
                 } else {
+
+                    ArrayList<String> allPaths = new ArrayList<>();
+                    int targetPosition = 0;
+                    int index = 0;
+
+                    for (PhotoItem item : photoItems) {
+                        if (item.type == PhotoItem.TYPE_PHOTO) {
+                            String path = item.file.getAbsolutePath();
+                            allPaths.add(path);
+
+                            if (path.equals(fileClicked.getAbsolutePath())) {
+                                targetPosition = index;
+                            }
+                            index++;
+                        }
+                    }
+
                     Intent intent = new Intent(MainActivity.this, ViewPhotoActivity.class);
-                    intent.putExtra("path", file.getAbsolutePath());
+                    intent.putStringArrayListExtra("list_paths", allPaths);
+                    intent.putExtra("position", targetPosition);
                     startActivity(intent);
                 }
             }
@@ -131,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLongClick(File file) {
                 photoAdapter.startSelectMode(file.getAbsolutePath());
-                updateTitle(); // hiện số ảnh đã chọn
+                updateTitle();
             }
 
             @Override
@@ -268,35 +287,57 @@ public class MainActivity extends AppCompatActivity {
             layoutOnThisDay.setVisibility(View.GONE);
             return;
         }
+
         File[] files = dir.listFiles();
+        Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
+
         Calendar now = Calendar.getInstance();
         int currentDay = now.get(Calendar.DAY_OF_MONTH);
         int currentMonth = now.get(Calendar.MONTH);
         int currentYear = now.get(Calendar.YEAR);
-        File matchedFile = null;
+
+        ArrayList<String> memoryPaths = new ArrayList<>();
         int yearDiff = 0;
+
         for (File file : files) {
             Calendar fileCal = Calendar.getInstance();
             fileCal.setTimeInMillis(file.lastModified());
+
             int fDay = fileCal.get(Calendar.DAY_OF_MONTH);
             int fMonth = fileCal.get(Calendar.MONTH);
             int fYear = fileCal.get(Calendar.YEAR);
+
             if (fDay == currentDay && fMonth == currentMonth && fYear < currentYear) {
-                matchedFile = file;
-                yearDiff = currentYear - fYear;
-                break;
+                memoryPaths.add(file.getAbsolutePath());
+
+                if (yearDiff == 0) {
+                    yearDiff = currentYear - fYear;
+                }
             }
         }
-        if (matchedFile != null) {
+
+        if (!memoryPaths.isEmpty()) {
             layoutOnThisDay.setVisibility(View.VISIBLE);
-            Glide.with(this).load(matchedFile).into(imgOnThisDay);
-            txtOnThisDayYear.setText(yearDiff + " năm trước");
-            File finalMatchedFile = matchedFile;
+
+            File coverPhoto = new File(memoryPaths.get(0));
+            Glide.with(this).load(coverPhoto).into(imgOnThisDay);
+
+            String infoText = yearDiff + " năm trước";
+            if (memoryPaths.size() > 1) {
+                infoText = "+" + memoryPaths.size() + " ảnh • " + infoText;
+            }
+            txtOnThisDayYear.setText(infoText);
+
             imgOnThisDay.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, ViewPhotoActivity.class);
-                intent.putExtra("path", finalMatchedFile.getAbsolutePath());
+
+                intent.putStringArrayListExtra("list_paths", memoryPaths);
+
+                intent.putExtra("position", 0);
+
                 startActivity(intent);
             });
+
         } else {
             layoutOnThisDay.setVisibility(View.GONE);
         }
