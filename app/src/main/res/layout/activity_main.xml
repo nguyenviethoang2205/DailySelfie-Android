@@ -19,7 +19,6 @@
             app:layout_scrollFlags="scroll|enterAlways"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-            <!-- Tiêu đề (sẽ thay đổi khi chọn nhiều) -->
             <TextView
                 android:id="@+id/txtHeader"
                 android:layout_width="wrap_content"
@@ -30,7 +29,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 
-            <!-- Nút Cài đặt (bình thường) -->
             <ImageButton
                 android:id="@+id/btnSetting"
                 android:layout_width="40dp"
@@ -41,7 +39,6 @@
                 android:contentDescription="Cài đặt"
                 app:tint="#FFFFFF" />
 
-            <!-- Nút CHỌN NHIỀU (hiện khi đang chọn) -->
             <ImageButton
                 android:id="@+id/btnSelectAll"
                 android:layout_width="48dp"
@@ -54,7 +51,6 @@
                 android:contentDescription="Chọn nhiều"
                 app:tint="#FFFFFF" />
 
-            <!-- Nút XÓA NHIỀU (hiện khi đang chọn) -->
             <ImageButton
                 android:id="@+id/btnDeleteSelected"
                 android:layout_width="48dp"
@@ -67,7 +63,6 @@
                 android:contentDescription="Xóa nhiều ảnh"
                 app:tint="#FF4444" />
 
-            <!-- Nút THOÁT chế độ chọn -->
             <ImageButton
                 android:id="@+id/btnCancelSelect"
                 android:layout_width="48dp"

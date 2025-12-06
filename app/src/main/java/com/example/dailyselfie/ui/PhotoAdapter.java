@@ -97,7 +97,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             return;
         }
 
-        // Xử lý hiển thị Ảnh
         PhotoHolder h = (PhotoHolder) holder;
         String path = item.file.getAbsolutePath();
         boolean isSelected = selectedPhotos.contains(path);
@@ -105,10 +104,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         Glide.with(h.itemView.getContext())
                 .load(item.file)
                 .signature(new ObjectKey(item.file.lastModified()))
-                .centerCrop() // Thêm centerCrop để ảnh vuông đẹp
+                .centerCrop()
                 .into(h.img);
 
-        // Hiển thị trạng thái đang chọn (Selected)
         if (isSelectMode) {
             h.imgSelected.setVisibility(isSelected ? View.VISIBLE : View.GONE);
             h.img.setAlpha(isSelected ? 0.5f : 1.0f); // Làm mờ ảnh nếu được chọn
@@ -126,14 +124,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             h.tvNote.setVisibility(View.GONE);
         }
 
-        // Sự kiện Click
         h.itemView.setOnClickListener(v -> listener.onClick(item.file));
         h.itemView.setOnLongClickListener(v -> {
             listener.onLongClick(item.file);
             return true;
         });
 
-        // Nút thêm ghi chú
         h.btnAddNote.setOnClickListener(v -> listener.onAddNote(item.file));
     }
 

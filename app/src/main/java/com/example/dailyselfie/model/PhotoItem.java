@@ -8,10 +8,9 @@ public class PhotoItem {
     public static final int TYPE_PHOTO = 1;
 
     public int type;
-    public String date; // dùng cho header ngày
-    public File file;   // dùng cho ảnh
+    public String date;
+    public File file;
 
-    // Constructor cho header ngày
     public static PhotoItem createDate(String date) {
         PhotoItem item = new PhotoItem();
         item.type = TYPE_DATE;
@@ -19,7 +18,6 @@ public class PhotoItem {
         return item;
     }
 
-    // Constructor cho ảnh
     public static PhotoItem createPhoto(File file) {
         PhotoItem item = new PhotoItem();
         item.type = TYPE_PHOTO;

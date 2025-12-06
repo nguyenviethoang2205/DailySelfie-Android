@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
     ImageView imgOnThisDay;
     TextView txtOnThisDayYear;
 
-    // Biến lưu ghi chú (đường dẫn -> ghi chú + emoji)
     public static Map<String, String> photoNotes = new HashMap<>();
 
     @Override
@@ -85,16 +84,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         FloatingActionButton fabCamera = findViewById(R.id.fabCamera);
         ImageButton btnSelectAll = findViewById(R.id.btnSelectAll);
-        ImageButton btnDeleteSelected = findViewById(R.id.btnDeleteSelected);
         ImageButton btnCancelSelect = findViewById(R.id.btnCancelSelect);
-        TextView txtHeader = findViewById(R.id.txtHeader);
 
         btnSettings.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, MenuSettingsActivity.class);
             startActivity(intent);
         });
 
-        // Nút "Chọn tất cả"
         btnSelectAll.setOnClickListener(v -> {
             photoAdapter.selectedPhotos.clear();
             for (PhotoItem item : photoItems) {
@@ -107,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
             updateTitle();
         });
 
-        // Nút hủy chọn
         btnCancelSelect.setOnClickListener(v -> {
             photoAdapter.exitSelectMode();
             updateTitle();
@@ -120,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
         loadNotesFromStorage();
 
-        // Tạo adapter với đầy đủ chức năng
         photoAdapter = new PhotoAdapter(photoItems, new PhotoAdapter.OnItemClick() {
             @Override
             public void onClick(File file) {
@@ -268,7 +262,6 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    // Các hàm cũ giữ nguyên
     private void checkForOnThisDay() {
         File dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         if (dir == null || dir.listFiles() == null) {
@@ -337,7 +330,6 @@ public class MainActivity extends AppCompatActivity {
         return items;
     }
 
-    //  Hàm tải toàn bộ ghi chú từ bộ nhớ khi mở App
     private void loadNotesFromStorage() {
         SharedPreferences prefs = getSharedPreferences("my_photo_notes", MODE_PRIVATE);
         java.util.Map<String, ?> allNotes = prefs.getAll();
@@ -350,7 +342,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //  Hàm lưu 1 ghi chú xuống bộ nhớ
     private void saveNoteToStorage(String path, String note) {
         SharedPreferences prefs = getSharedPreferences("my_photo_notes", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();

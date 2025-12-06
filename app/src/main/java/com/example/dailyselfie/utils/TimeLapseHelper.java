@@ -2,6 +2,10 @@ package com.example.dailyselfie.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.Log;
 
 import org.jcodec.api.android.AndroidSequenceEncoder;
@@ -12,6 +16,7 @@ import java.util.List;
 public class TimeLapseHelper {
 
     private static final int VIDEO_WIDTH = 480;
+    private static final int VIDEO_HEIGHT = 640;
 
     public static File createTimeLapse(List<File> imageFiles, File outputFile, int fps) {
         AndroidSequenceEncoder encoder = null;
@@ -19,38 +24,50 @@ public class TimeLapseHelper {
             encoder = AndroidSequenceEncoder.createSequenceEncoder(outputFile, fps);
 
             for (File imageFile : imageFiles) {
+                Bitmap finalFrame = null;
+                Bitmap sourceBitmap = null;
+
                 try {
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
                     BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
 
-                    options.inSampleSize = calculateInSampleSize(options, VIDEO_WIDTH, VIDEO_WIDTH);
+                    options.inSampleSize = calculateInSampleSize(options, VIDEO_WIDTH, VIDEO_HEIGHT);
                     options.inJustDecodeBounds = false;
 
-                    Bitmap originalBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
+                    sourceBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
 
-                    if (originalBitmap != null) {
-                        int originalWidth = originalBitmap.getWidth();
-                        int originalHeight = originalBitmap.getHeight();
-                        float aspectRatio = (float) originalWidth / originalHeight;
+                    if (sourceBitmap != null) {
+                        finalFrame = Bitmap.createBitmap(VIDEO_WIDTH, VIDEO_HEIGHT, Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(finalFrame);
+                        canvas.drawColor(Color.BLACK);
 
-                        int targetHeight = (int) (VIDEO_WIDTH / aspectRatio);
-                        if (targetHeight % 2 != 0) targetHeight++;
-                        if (targetHeight < 2) targetHeight = 2;
+                        float scaleX = (float) VIDEO_WIDTH / sourceBitmap.getWidth();
+                        float scaleY = (float) VIDEO_HEIGHT / sourceBitmap.getHeight();
+                        float scale = Math.min(scaleX, scaleY);
 
-                        Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, VIDEO_WIDTH, targetHeight, true);
+                        int newWidth = Math.round(sourceBitmap.getWidth() * scale);
+                        int newHeight = Math.round(sourceBitmap.getHeight() * scale);
 
-                        encoder.encodeImage(scaledBitmap);
+                        int left = (VIDEO_WIDTH - newWidth) / 2;
+                        int top = (VIDEO_HEIGHT - newHeight) / 2;
 
-                        if (originalBitmap != scaledBitmap) {
-                            originalBitmap.recycle();
-                        }
-                        scaledBitmap.recycle();
+                        Rect destRect = new Rect(left, top, left + newWidth, top + newHeight);
+                        canvas.drawBitmap(sourceBitmap, null, destRect, null);
+
+                        encoder.encodeImage(finalFrame);
                     }
+
                 } catch (Exception e) {
-                    Log.e("TimeLapse", "Bỏ qua frame lỗi: " + imageFile.getName() + " - " + e.getMessage());
+                    Log.e("TimeLapse", "Lỗi frame: " + imageFile.getName() + " - " + e.getMessage());
+                } finally {
+                    if (sourceBitmap != null && !sourceBitmap.isRecycled()) {
+                        sourceBitmap.recycle();
+                    }
+                    if (finalFrame != null && !finalFrame.isRecycled()) {
+                        finalFrame.recycle();
+                    }
                 }
-                // ------------------------------------------
             }
 
             encoder.finish();
